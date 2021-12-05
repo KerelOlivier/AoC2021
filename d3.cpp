@@ -112,6 +112,10 @@ int step2(){
     std::cout << a.front() << std::endl;
     a.pop();
   }
+  while(!b.empty()){
+    std::cout << b.front() << std::endl;
+    b.pop();
+  }
 
   std::cout << "oxygen: " << oxygen << std::endl;
   std::cout << "co2: " << co2 << std::endl;
