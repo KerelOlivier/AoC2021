@@ -16,8 +16,7 @@ int main(){
   int curr = totalDist(v, 1);
   while(curr <= prev){
     prev = curr;
-    x++;
-    curr = totalDist(v, x);
+    curr = totalDist(v, x++);
   }
   std::cout << x << " => " << curr << "," << prev << std::endl;
 
