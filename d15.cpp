@@ -111,11 +111,6 @@ uint32_t step1(std::vector<std::vector<char>> map) {
   return 0;
 }
 
-uint heuristic(int x, int y, int width, int height) {
-  // return manhattan distance
-  return x + y;
-}
-
 uint32_t step2(std::vector<std::vector<char>> m) {
   int w = m[0].size();
   int h = m.size();
@@ -127,55 +122,36 @@ uint32_t step2(std::vector<std::vector<char>> m) {
     for (int x = 0; x < width; x++) {
       ushort mod = x / w + y / h;
       ushort alt = (m[y % h][x % w] - '0' + mod);
-      if(alt > 9) alt -= 9;
+      if (alt > 9)
+        alt -= 9;
       map[y][x] = alt;
     }
   }
 
-  // print map
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      std::cout << map[y][x];
-    }
-    std::cout << std::endl;
-  }
-
-  // A* algorithm on map
   std::priority_queue<Point> q;
-  std::vector<std::vector<uint32_t>> dist(
-      height, std::vector<uint32_t>(width, __UINT32_MAX__));
-  // Add start
-  q.emplace(0, 0, 0);
+  q.emplace(0, 0);
 
-  uint gScore[height][width];
-  uint fScore[height][width];
+  uint dist[height][width];
   bool isInSet[height][width];
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      gScore[y][x] = __UINT32_MAX__;
-      fScore[y][x] = __UINT32_MAX__;
+      dist[y][x] = __UINT32_MAX__;
       isInSet[y][x] = false;
     }
   }
-  gScore[0][0] = 0;
-  fScore[0][0] = heuristic(0, 0, width, height);
+  dist[0][0] = 0;
   isInSet[0][0] = true;
-
-  std::cout << "A*" << std::endl;
 
   while (!q.empty()) {
     Point p = q.top();
     q.pop();
-    // std::cout << "Popped: " << p.x << " " << p.y << std::endl;
     if (p.x == width - 1 && p.y == height - 1) {
       return p.cost;
     }
     if (p.y > 0) {
-      // std::cout << "y > 0: " << x << ", " << y << std::endl;
-      int alt = gScore[p.y][p.x] + map[p.y - 1][p.x];
-      if (alt < gScore[p.y - 1][p.x]) {
-        gScore[p.y - 1][p.x] = alt;
-        fScore[p.y - 1][p.x] = alt + heuristic(p.x, p.y - 1, width, height);
+      int alt = dist[p.y][p.x] + map[p.y - 1][p.x];
+      if (alt < dist[p.y - 1][p.x]) {
+        dist[p.y - 1][p.x] = alt;
         if (!isInSet[p.y - 1][p.x]) {
           q.emplace(p.x, p.y - 1, alt);
           isInSet[p.y - 1][p.x] = true;
@@ -183,11 +159,9 @@ uint32_t step2(std::vector<std::vector<char>> m) {
       }
     }
     if (p.x > 0) {
-      // std::cout << "x > 0: " << x << " " << y << std::endl;
-      int alt = gScore[p.y][p.x] + map[p.y][p.x - 1];
-      if (alt < gScore[p.y][p.x - 1]) {
-        gScore[p.y][p.x - 1] = alt;
-        fScore[p.y][p.x - 1] = alt + heuristic(p.x - 1, p.y, width, height);
+      int alt = dist[p.y][p.x] + map[p.y][p.x - 1];
+      if (alt < dist[p.y][p.x - 1]) {
+        dist[p.y][p.x - 1] = alt;
         if (!isInSet[p.y][p.x - 1]) {
           q.emplace(p.x - 1, p.y, alt);
           isInSet[p.y][p.x - 1] = true;
@@ -195,11 +169,9 @@ uint32_t step2(std::vector<std::vector<char>> m) {
       }
     }
     if (p.x < width - 1) {
-      // std::cout << "x < width - 1: " << x << " " << y << std::endl;
-      int alt = gScore[p.y][p.x] + map[p.y][p.x + 1];
-      if (alt < gScore[p.y][p.x + 1]) {
-        gScore[p.y][p.x + 1] = alt;
-        fScore[p.y][p.x + 1] = alt + heuristic(p.x + 1, p.y, width, height);
+      int alt = dist[p.y][p.x] + map[p.y][p.x + 1];
+      if (alt < dist[p.y][p.x + 1]) {
+        dist[p.y][p.x + 1] = alt;
         if (!isInSet[p.y][p.x + 1]) {
           q.emplace(p.x + 1, p.y, alt);
           isInSet[p.y][p.x + 1] = true;
@@ -207,18 +179,15 @@ uint32_t step2(std::vector<std::vector<char>> m) {
       }
     }
     if (p.y < height - 1) {
-      // std::cout << "y < height - 1: " << x << " " << y << std::endl;
-      int alt = gScore[p.y][p.x] + map[p.y + 1][p.x];
-      if (alt < gScore[p.y + 1][p.x]) {
-        gScore[p.y + 1][p.x] = alt;
-        fScore[p.y + 1][p.x] = alt + heuristic(p.x, p.y + 1, width, height);
+      int alt = dist[p.y][p.x] + map[p.y + 1][p.x];
+      if (alt < dist[p.y + 1][p.x]) {
+        dist[p.y + 1][p.x] = alt;
         if (!isInSet[p.y + 1][p.x]) {
           q.emplace(p.x, p.y + 1, alt);
           isInSet[p.y + 1][p.x] = true;
         }
       }
     }
-    // std::cout << "===========================" << std::endl;
   }
 
   return 0;
